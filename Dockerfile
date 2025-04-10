@@ -1,5 +1,7 @@
-ARG CUDA_VERSION=11.8.0
-ARG IMAGE_DISTRO=ubi8
+#Grabbed from wilicc/gpu-burn
+
+ARG CUDA_VERSION=12.8.1
+ARG IMAGE_DISTRO=ubuntu24.04
 
 FROM nvidia/cuda:${CUDA_VERSION}-devel-${IMAGE_DISTRO} AS builder
 
@@ -16,4 +18,4 @@ COPY --from=builder /build/compare.ptx /app/
 
 WORKDIR /app
 
-CMD ["./gpu_burn", "60"]
+CMD ["./gpu_burn", "-m 90%", "-tc", "3600"]
