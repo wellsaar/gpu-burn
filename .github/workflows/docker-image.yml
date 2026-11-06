@@ -1,0 +1,65 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  REGISTRY: docker.io
+  IMAGE: wellsaaar/wellsaaar-gpu-burn
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Docker Hub
+      if: github.event_name == 'push'
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Extract metadata (tags + labels)
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE }}
+        tags: |
+          type=sha,prefix=sha-
+          type=raw,value=local,enable={{is_pull_request}}
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=raw,value=cuda-13.5-ubuntu24.04,enable={{is_default_branch}}
+        labels: |
+          org.opencontainers.image.title=gpu-burn
+          org.opencontainers.image.description=Multi-GPU CUDA stress test
+          org.opencontainers.image.source=https://github.com/wellsaaar/gpu-burn
+
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: Dockerfile
+        push: ${{ github.event_name == 'push' }}
+        load: ${{ github.event_name != 'push' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Smoke test binary
+      if: github.event_name != 'push'
+      run: |
+        docker run --rm --entrypoint "" ${{ env.IMAGE }}:local ls /app
+        docker run --rm --entrypoint "" ${{ env.IMAGE }}:local /app/gpu_burn -h

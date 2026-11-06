@@ -27,8 +27,8 @@ override LDFLAGS  += -lcublas
 override LDFLAGS  += -lcudart
 
 COMPUTE      ?= 75
-CUDA_VERSION ?= 11.8.0
-IMAGE_DISTRO ?= ubi8
+CUDA_VERSION ?= 13.5.0
+IMAGE_DISTRO ?= ubuntu24.04
 
 override NVCCFLAGS ?=
 override NVCCFLAGS += -I${CUDAPATH}/include

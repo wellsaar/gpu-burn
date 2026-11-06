@@ -12,12 +12,12 @@ Multi-GPU CUDA stress test
 ## Easy docker build and run
 
 ```plain
-git clone https://github.com/wilicc/gpu-burn
+git clone https://github.com/wellsaaar/gpu-burn
 cd gpu-burn
 docker build -t gpu-burn .
 docker run --rm --gpus all gpu-burn
 ```
-By default the container burns for 60 seconds.  To pass [options](#usage), give the full command:
+By default the container uses 90% of available GPU memory with tensor cores and burns for 3600 seconds (1 hour).  To pass [options](#usage), give the full command:
 
 ```plain
 docker run --rm --gpus all gpu-burn ./gpu_burn -m 50% 3600
@@ -25,7 +25,7 @@ docker run --rm --gpus all gpu-burn ./gpu_burn -m 50% 3600
 You can pass build arguments to specify the CUDA version, the compute capability, and base image distro, e.g.:
 
 ```plain
-docker build --build-arg CUDA_VERSION=13.0.0 --build-arg COMPUTE=75 --build-arg IMAGE_DISTRO=ubi8 -t gpu-burn .
+docker build --build-arg CUDA_VERSION=13.5.0 --build-arg COMPUTE=75 --build-arg IMAGE_DISTRO=ubuntu24.04 -t gpu-burn .
 ```
 ## Binary packages
 
@@ -84,7 +84,7 @@ CUDA_VERSION and IMAGE_DISTRO can be used to override the base
 images used when building the Docker `image` target, while IMAGE_NAME
 can be set to change the resulting image tag:
 
-`make IMAGE_NAME=myregistry.private.com/gpu-burn CUDA_VERSION=12.0.1 IMAGE_DISTRO=ubuntu22.04 image`
+`make IMAGE_NAME=myregistry.private.com/gpu-burn CUDA_VERSION=13.5.0 IMAGE_DISTRO=ubuntu24.04 image`
 
 ## Usage
 
