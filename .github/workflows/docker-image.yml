@@ -38,7 +38,7 @@ jobs:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE }}
         tags: |
           type=sha,prefix=sha-
-          type=raw,value=local,enable={{is_pull_request}}
+          type=raw,value=local,enable=${{ github.event_name == 'pull_request' }}
           type=raw,value=latest,enable={{is_default_branch}}
           type=raw,value=cuda-13.5-ubuntu24.04,enable={{is_default_branch}}
         labels: |
