@@ -70,32 +70,3 @@ jobs:
       run: |
         docker run --rm --entrypoint "" ${{ env.IMAGE }}:local ls /app
         docker run --rm --entrypoint "" ${{ env.IMAGE }}:local /app/gpu_burn -h
-
-  remove-stale-tags:
-    if: github.event_name == 'push'
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Remove stale Docker Hub tags
-      env:
-        DH_USER: ${{ secrets.DOCKERHUB_USERNAME }}
-        DH_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      run: |
-        # One-time cleanup of tags published by older workflow versions.
-        # Idempotent: 404 means the tag is already gone. Safe to remove
-        # this job once all listed tags have been deleted.
-        image="${{ env.IMAGE }}"
-        for tag in sha-29955c8 cuda-13.5-ubuntu24.04; do
-          code=$(curl -s -o /dev/null -w '%{http_code}' \
-            -u "${DH_USER}:${DH_TOKEN}" \
-            -X DELETE "https://hub.docker.com/v2/repositories/${image}/tags/${tag}")
-          if [ "$code" = "204" ]; then
-            echo "deleted stale tag: ${tag}"
-          elif [ "$code" = "404" ]; then
-            echo "stale tag already gone: ${tag}"
-          else
-            echo "::error::failed to delete stale tag ${tag} (HTTP ${code})"
-            exit 1
-          fi
-        done
