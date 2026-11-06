@@ -14,6 +14,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        cuda: [ "13.5.0", "13.4.3" ]
+
     permissions:
       contents: read
 
@@ -37,10 +42,9 @@ jobs:
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE }}
         tags: |
-          type=sha,prefix=sha-
           type=raw,value=local,enable=${{ github.event_name == 'pull_request' }}
-          type=raw,value=latest,enable={{is_default_branch}}
-          type=raw,value=cuda-13.5-ubuntu24.04,enable={{is_default_branch}}
+          type=raw,value=cuda-${{ matrix.cuda }}-ubuntu24.04,enable=${{ github.event_name != 'pull_request' }}
+          type=raw,value=latest,enable=${{ github.event_name != 'pull_request' && matrix.cuda == '13.5.0' }}
         labels: |
           org.opencontainers.image.title=gpu-burn
           org.opencontainers.image.description=Multi-GPU CUDA stress test
@@ -51,12 +55,15 @@ jobs:
       with:
         context: .
         file: Dockerfile
+        build-args: |
+          CUDA_VERSION=${{ matrix.cuda }}
+          IMAGE_DISTRO=ubuntu24.04
         push: ${{ github.event_name == 'push' }}
         load: ${{ github.event_name != 'push' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+        cache-from: type=gha,scope=cuda-${{ matrix.cuda }}
+        cache-to: type=gha,mode=max,scope=cuda-${{ matrix.cuda }}
 
     - name: Smoke test binary
       if: github.event_name != 'push'
