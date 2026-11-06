@@ -12,7 +12,7 @@ Multi-GPU CUDA stress test
 ## Easy docker build and run
 
 ```plain
-git clone https://github.com/wellsaaar/gpu-burn
+git clone https://github.com/wellsaar/gpu-burn
 cd gpu-burn
 docker build -t gpu-burn .
 docker run --rm --gpus all gpu-burn

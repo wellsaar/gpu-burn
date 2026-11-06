@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: docker.io
-  IMAGE: wellsaaar/wellsaaar-gpu-burn
+  IMAGE: wellsaar/wellsaar-gpu-burn
 
 jobs:
   build:
@@ -44,7 +44,7 @@ jobs:
         labels: |
           org.opencontainers.image.title=gpu-burn
           org.opencontainers.image.description=Multi-GPU CUDA stress test
-          org.opencontainers.image.source=https://github.com/wellsaaar/gpu-burn
+          org.opencontainers.image.source=https://github.com/wellsaar/gpu-burn
 
     - name: Build and push
       uses: docker/build-push-action@v6
